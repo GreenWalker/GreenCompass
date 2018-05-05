@@ -1,0 +1,26 @@
+item: 'COMPASS'
+nome: '&bBussola'
+lore:
+ - ''
+
+distancia:
+ x: 50
+ y: 10
+ z: 50
+
+ativar_delay: true
+# em segundos
+delay: 5
+
+som_ao_clicar: true
+
+# caso o som seja inválido, um padrão será atribuido.
+som: ORB_PICKUP
+
+# mensagens
+
+em_cooldown: '&aEspere &e%delay%&as para usar este recurso novamente!'
+nenhum_jogador_por_perto: '&eWhooops.. &aparece que não há nenhum jogador por perto!'
+jogador_mais_proximo: '&aO(a) jogador(a) mais próximo(a) de você é o(a) &e%player%&a. Está a &e%distancia%&a blocos de você e sua ultima localização foi marcada em sua bússola!'
+jogador_mais_proximo_acima: '&aO(a) jogador(a) mais próximo(a) de você é o(a) &e%player%&a, e está acima de você a uma distancia de &e%distancia%&a blocos. Sua ultima localização foi marcada em sua bússola!'
+jogador_mais_proximo_abaixo: '&aO(a) jogador(a) mais próximo(a) de você é o(a) &e%player%&a, e está abaixo de você a uma distancia de &e%distancia%&a blocos. Sua ultima localização foi marcada em sua bússola!'

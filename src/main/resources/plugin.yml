@@ -1,0 +1,7 @@
+name: ${bukkitplugin.name}
+version: ${bukkitplugin.version}
+main: com.gmail.gustgamer29.MainClass
+description: ${project.description}
+authors: [${bukkitplugin.authors}]
+commands:
+ gbussola:
