@@ -84,7 +84,8 @@ public class InteractEvents implements Listener, CommandExecutor {
             return;
         }
 
-        if (!item.hasItemMeta() || utils.getNbtVersion().hasNBTKey(item, "Compass")) {
+        if (!item.hasItemMeta() || !utils.getNbtVersion().hasNBTKey(item, "Compass")) {
+            System.out.println(utils.getNbtVersion().getNBTValue(item, "Compass"));
             return;
         }
 
@@ -128,10 +129,11 @@ public class InteractEvents implements Listener, CommandExecutor {
         double x = mainClass.getConfig().getDouble("distancia.x");
         double y = mainClass.getConfig().getDouble("distancia.y");
         double z = mainClass.getConfig().getDouble("distancia.z");
+
         final AtomicDouble lastDistance = new AtomicDouble(Double.MAX_VALUE);
         final Player[] result = {null};
 
-        ClanPlayer clan = clanManager.getClanPlayer(ofPlayer);
+        ClanPlayer clan = clanManager.getClanPlayer(ofPlayer); // if player is of the same clan, ignore him.
 
         ofPlayer.getNearbyEntities(x, y, z).forEach(p -> {
 
@@ -166,13 +168,11 @@ public class InteractEvents implements Listener, CommandExecutor {
                 return;
             }
 
-
             double distance = ofPlayer.getLocation().distance(p.getLocation());
             if (distance < lastDistance.get()) {
                 lastDistance.set(distance);
                 result[0] = (Player) p;
             }
-
 
         });
         return result[0];
@@ -183,7 +183,7 @@ public class InteractEvents implements Listener, CommandExecutor {
             return;
         }
 
-        Sound sound = null;
+        Sound sound;
 
         try {
 
@@ -206,20 +206,20 @@ public class InteractEvents implements Listener, CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            return false;
-        }
-        if (!command.getName().equalsIgnoreCase("gbussola")) {
-            return false;
+            System.out.println("Invalid insertion");
+            sender.sendMessage("Invalid insertion.");
+            return true;
         }
         Player player = (Player) sender;
         if (args == null || args.length == 0) {
             int i = player.getInventory().firstEmpty();
             if (i < 0) {
                 player.sendMessage("§cInventário cheio!");
-                return false;
+                return true;
             }
             if(player.getInventory().contains(item)){
-                return false;
+                sender.sendMessage("Already contains the item.");
+                return true;
             }
             player.getInventory().setItem(i, item);
             return true;
@@ -228,19 +228,20 @@ public class InteractEvents implements Listener, CommandExecutor {
             Player target = Bukkit.getPlayer(args[0]);
             if (target == null) {
                 player.sendMessage("§cjogador " + args[0] + " não está online!");
-                return false;
+                return true;
             }
             int i = target.getInventory().firstEmpty();
             if (i < 0) {
                 player.sendMessage("§cJogador está com o inventário cheio.");
-                return false;
+                return true;
             }
             if(target.getInventory().contains(item)){
-                return false;
+                return true;
             }
             target.getInventory().setItem(i, item);
             return true;
         }
-        return false;
+        sender.sendMessage("Non have another options.");
+        return true;
     }
 }

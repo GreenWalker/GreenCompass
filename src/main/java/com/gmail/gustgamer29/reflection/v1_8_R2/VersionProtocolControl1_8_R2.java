@@ -1,14 +1,15 @@
 package com.gmail.gustgamer29.reflection.v1_8_R2;
 
+import com.gmail.gustgamer29.NbtFactory;
+import com.gmail.gustgamer29.reflection.NBTVersion;
 import com.gmail.gustgamer29.reflection.VersionProtocol;
-import net.minecraft.server.v1_8_R2.IChatBaseComponent;
-import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
-import net.minecraft.server.v1_8_R2.PacketPlayOutTitle;
-import net.minecraft.server.v1_8_R2.PlayerConnection;
+import net.minecraft.server.v1_8_R2.*;
 import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-public class VersionProtocolControl1_8_R2 implements VersionProtocol {
+public class VersionProtocolControl1_8_R2 implements VersionProtocol, NBTVersion {
 
 
     private static VersionProtocolControl1_8_R2 instance;
@@ -21,6 +22,33 @@ public class VersionProtocolControl1_8_R2 implements VersionProtocol {
             instance = new VersionProtocolControl1_8_R2();
         }
         return instance;
+    }
+
+    @Override
+    public ItemStack insertNBT(ItemStack item, String key, String value) {
+        net.minecraft.server.v1_8_R2.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound comp = itemStack.hasTag() ? itemStack.getTag() : new NBTTagCompound();
+        comp.set(key, new NBTTagString(value));
+        comp.setString(key, value);
+        itemStack.setTag(comp);
+        itemStack.save(comp);
+        NbtFactory.NbtCompound factory = NbtFactory.createCompound();
+        return CraftItemStack.asBukkitCopy(itemStack);
+    }
+
+    @Override
+    public boolean hasNBTKey(ItemStack item, String key) {
+        net.minecraft.server.v1_8_R2.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        return itemStack.hasTag() && itemStack.getTag().hasKey(key);
+    }
+
+    @Override
+    public Object getNBTValue(ItemStack item, String key) {
+        net.minecraft.server.v1_8_R2.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        if (!itemStack.hasTag()) {
+            return false;
+        }
+        return itemStack.getTag().getString(key);
     }
 
     public void sendActionBar(Player player, String json) {

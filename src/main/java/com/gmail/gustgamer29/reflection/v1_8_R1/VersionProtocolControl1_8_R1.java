@@ -1,11 +1,15 @@
 package com.gmail.gustgamer29.reflection.v1_8_R1;
 
+import com.gmail.gustgamer29.NbtFactory;
+import com.gmail.gustgamer29.reflection.NBTVersion;
 import com.gmail.gustgamer29.reflection.VersionProtocol;
 import net.minecraft.server.v1_8_R1.*;
 import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-public class VersionProtocolControl1_8_R1 implements VersionProtocol {
+public class VersionProtocolControl1_8_R1 implements VersionProtocol, NBTVersion {
 
     private static VersionProtocolControl1_8_R1 instance;
 
@@ -17,6 +21,33 @@ public class VersionProtocolControl1_8_R1 implements VersionProtocol {
             instance = new VersionProtocolControl1_8_R1();
         }
         return instance;
+    }
+
+    @Override
+    public org.bukkit.inventory.ItemStack insertNBT(org.bukkit.inventory.ItemStack item, String key, String value) {
+        net.minecraft.server.v1_8_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound comp = itemStack.hasTag() ? itemStack.getTag() : new NBTTagCompound();
+        comp.set(key, new net.minecraft.server.v1_8_R1.NBTTagString(value));
+        comp.setString(key, value);
+        itemStack.setTag(comp);
+        itemStack.save(comp);
+        NbtFactory.NbtCompound factory = NbtFactory.createCompound();
+        return CraftItemStack.asBukkitCopy(itemStack);
+    }
+
+    @Override
+    public boolean hasNBTKey(org.bukkit.inventory.ItemStack item, String key) {
+        net.minecraft.server.v1_8_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        return itemStack.hasTag() && itemStack.getTag().hasKey(key);
+    }
+
+    @Override
+    public Object getNBTValue(ItemStack item, String key) {
+        net.minecraft.server.v1_8_R1.ItemStack itemStack = CraftItemStack.asNMSCopy(item);
+        if (!itemStack.hasTag()) {
+            return false;
+        }
+        return itemStack.getTag().getString(key);
     }
 
     @Override
