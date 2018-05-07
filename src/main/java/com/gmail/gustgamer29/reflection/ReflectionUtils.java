@@ -25,7 +25,7 @@ public class ReflectionUtils {
     }
 
     private void configureVersionProtocol() throws UnSupportedVersion {
-        SupportedVersionsAtNow v = SupportedVersionsAtNow.valueOf(this.version);
+        SupportedVersions v = SupportedVersions.valueOf(this.version);
         switch (v){
             case v1_7_R3:
                 this.versionProtocol = VersionProtocolControl1_7_R3.getInstance();

@@ -2,14 +2,16 @@ package com.gmail.gustgamer29;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import com.gmail.gustgamer29.common.StringUtil;
+import com.gmail.gustgamer29.common.ServerHelper;
+import com.gmail.gustgamer29.common.item.ConfigurableItem;
+import com.gmail.gustgamer29.common.messages.Message;
+import com.gmail.gustgamer29.common.messages.MessageHandler;
 import com.gmail.gustgamer29.reader.ConfigHandler;
 import com.pgcraft.spectatorplus.SpectatorPlus;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
-import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
 import net.shortninja.staffplus.StaffPlus;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
@@ -38,9 +40,12 @@ public class MainClass extends JavaPlugin{
     @Override
     public void onEnable(){
         loadPluginInfo(getDescription().getVersion());
-        info(new StringBuilder("&bO servidor está rodando na versão &a").append(SMALL_VERSION_FORMAT));
+
+        ServerHelper.info(MessageHandler.replaceMessage(Message.SERVER_VERSION_RUNNING, SMALL_VERSION_FORMAT));
+
         initialize();
-        info(new StringBuilder("&aPlugin ").append("&e").append(getDescription().getName()).append("&a ").append("ativado! build&7:&e").append(pluginBuildNumber));
+
+        ServerHelper.info(MessageHandler.replaceMessage(Message.PLUGIN_ACTVATED, getName(), pluginBuildNumber));
     }
 
     @Override
@@ -53,28 +58,13 @@ public class MainClass extends JavaPlugin{
         verifyDependencies();
         injector = new InjectorBuilder().addDefaultHandlers("com.gmail.gustgamer29").create();
         injector.register(MainClass.class, this);
-        injector.register(ClanManager.class, SimpleClans.getInstance().getClanManager());
+        injector.register(Server.class, getServer());
         injector.register(String.class, SERVER_VERSION.substring(SERVER_VERSION.lastIndexOf(".") + 1));
+        injector.register(ConfigurableItem.class, new ConfigurableItem(getConfig().getString("item")));
 
         setupListener(injector);
     }
 
-    private void verifyDependencies() {
-        StaffPlus staffPlus = (StaffPlus) getServer().getPluginManager().getPlugin("StaffPlus");
-        SpectatorPlus spectatorPlus = (SpectatorPlus) getServer().getPluginManager().getPlugin("SpectatorPlus");
-        SimpleClans simpleClans = (SimpleClans) getServer().getPluginManager().getPlugin("SimpleClans");
-
-        List<Plugin> plugins = Arrays.asList(staffPlus, simpleClans, spectatorPlus);
-        plugins.forEach(this::verifyIfPluginIsPresent);
-
-        if(!getDescription().getName().equalsIgnoreCase("GreenCompass")){
-            desligar();
-        }
-    }
-
-    private void desligar() {
-        getServer().getPluginManager().disablePlugin(this);
-    }
 
     private void setupListener(Injector injector){
         PluginManager manager = getServer().getPluginManager();
@@ -91,14 +81,21 @@ public class MainClass extends JavaPlugin{
         }
     }
 
-    public void info(StringBuilder msg){
-        Bukkit.getConsoleSender()
-                .sendMessage(ChatColor.translateAlternateColorCodes('&' , msg.toString()));
-    }
-
-    @Override
     public ConfigHandler getConfig() {
         return config;
+    }
+
+    private void verifyDependencies() {
+        StaffPlus staffPlus = (StaffPlus) getServer().getPluginManager().getPlugin("StaffPlus");
+        SpectatorPlus spectatorPlus = (SpectatorPlus) getServer().getPluginManager().getPlugin("SpectatorPlus");
+        SimpleClans simpleClans = (SimpleClans) getServer().getPluginManager().getPlugin("SimpleClans");
+
+        List<Plugin> plugins = Arrays.asList(staffPlus, simpleClans, spectatorPlus);
+        plugins.forEach(ServerHelper::verifyIfPluginIsPresent);
+
+        if (!getDescription().getName().equalsIgnoreCase("GreenCompass")) {
+            ServerHelper.desligar();
+        }
     }
 
     private static void loadPluginInfo(String versionRaw) {
@@ -111,17 +108,4 @@ public class MainClass extends JavaPlugin{
             }
         }
     }
-
-    private boolean verifyIfPluginIsPresent(Plugin plugin) {
-        if (plugin == null) {
-            info(new StringBuilder("&aUm plugin necessário para a funcionalidade correta do plugin não foi encontrado no servidor! desligando plugin.")
-                    .append("\nCertifique-se de que estes plugins estejam presentes na pasta plugins&7:&f ")
-                    .append(StringUtil.join(getDescription().getDepend(), "&8, ")));
-            desligar();
-            return false;
-        }
-        info(new StringBuilder("&e").append(plugin.getName()).append(" &afoi encontrado no servidor! versão&7:&e ").append(plugin.getDescription().getVersion()));
-        return true;
-    }
-
 }

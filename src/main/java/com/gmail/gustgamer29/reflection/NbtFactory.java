@@ -15,36 +15,7 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package com.gmail.gustgamer29;
-
-import java.io.BufferedInputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.AbstractList;
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Server;
-import org.bukkit.inventory.ItemStack;
+package com.gmail.gustgamer29.reflection;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
@@ -56,6 +27,20 @@ import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.OutputSupplier;
 import com.google.common.primitives.Primitives;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.inventory.ItemStack;
+
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class NbtFactory {
     // Convert between NBT id and the equivalent class in java

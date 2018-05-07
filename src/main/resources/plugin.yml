@@ -3,5 +3,8 @@ version: ${bukkitplugin.version}
 main: com.gmail.gustgamer29.MainClass
 description: ${project.description}
 authors: [${bukkitplugin.authors}]
+softdepend: [SimpleClans, StaffPlus, SpectatorPlus]
 commands:
  gbussola:
+  description: get item.
+  usage: /gbussola <player>

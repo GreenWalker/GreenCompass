@@ -1,7 +1,7 @@
 package com.gmail.gustgamer29.reflection.v1_7_R3;
 
-import com.gmail.gustgamer29.NbtFactory;
 import com.gmail.gustgamer29.reflection.NBTVersion;
+import com.gmail.gustgamer29.reflection.NbtFactory;
 import com.gmail.gustgamer29.reflection.VersionProtocol;
 import net.minecraft.server.v1_7_R3.NBTTagCompound;
 import net.minecraft.server.v1_7_R3.NBTTagString;

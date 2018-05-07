@@ -1,18 +1,16 @@
 package com.gmail.gustgamer29;
 
+import com.gmail.gustgamer29.common.HelperSupplier;
+import com.gmail.gustgamer29.common.ServerHelper;
+import com.gmail.gustgamer29.common.item.ConfigurableItem;
 import com.gmail.gustgamer29.expiring.ExpiringSet;
 import com.gmail.gustgamer29.reflection.ReflectionUtils;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.pgcraft.spectatorplus.SpectateAPI;
 import net.sacredlabyrinth.phaed.simpleclans.Clan;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
-import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
-import net.shortninja.staffplus.StaffPlus;
-import net.shortninja.staffplus.player.attribute.mode.handler.VanishHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -33,34 +30,22 @@ public class InteractEvents implements Listener, CommandExecutor {
 
     private MainClass mainClass;
 
-    private ItemStack item;
+    private ConfigurableItem item;
 
     private ReflectionUtils utils;
 
-    private ClanManager clanManager;
-
     private ExpiringSet<Player> delay;
 
+    private HelperSupplier supplier;
+
     @Inject
-    InteractEvents(MainClass mainClass, ReflectionUtils utils, ClanManager clanManager) {
+    InteractEvents(MainClass mainClass, ReflectionUtils utils, ConfigurableItem item, HelperSupplier supplier) {
         this.mainClass = mainClass;
         this.utils = utils;
-        this.clanManager = clanManager;
+        this.item = item;
+        this.supplier = supplier;
         this.delay = new ExpiringSet<>(mainClass.getConfig().getInt("delay"), TimeUnit.SECONDS);
 
-        try {
-            Material mat = Material.valueOf(mainClass.getConfig().getString("item"));
-            item = new ItemStack(mat);
-        } catch (Exception e) {
-            mainClass.info(new StringBuilder("&aUm erro ocorreu ao tentar definir o item de interação! causa&7: &c").append(e.getMessage()).append("\n").append("&aDefinindo item padrão."));
-            item = new ItemStack(Material.COMPASS);
-        }
-
-        item = utils.getNbtVersion().insertNBT(item, "Compass", "bussola");
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(mainClass.getConfig().getStringReplaced("nome"));
-        meta.setLore(mainClass.getConfig().getStringList("lore", null));
-        item.setItemMeta(meta);
     }
 
     @EventHandler
@@ -68,7 +53,7 @@ public class InteractEvents implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        if(item == null || !item.getType().equals(this.item.getType())){
+        if (item == null || !item.getType().equals(this.item.getItem().getType())) {
             return;
         }
 
@@ -84,8 +69,8 @@ public class InteractEvents implements Listener, CommandExecutor {
             return;
         }
 
-        if (!item.hasItemMeta() || !utils.getNbtVersion().hasNBTKey(item, "Compass")) {
             System.out.println(utils.getNbtVersion().getNBTValue(item, "Compass"));
+        if (!item.hasItemMeta() || utils.getNbtVersion().hasNBTKey(item, "Compass")) {
             return;
         }
 
@@ -97,7 +82,7 @@ public class InteractEvents implements Listener, CommandExecutor {
 
         if (nearestPlayer == null) {
             player.sendMessage(mainClass.getConfig().getStringReplaced("nenhum_jogador_por_perto"));
-            sendSound(player);
+            supplier.sendSound(player);
             delay.add(player);
             return;
         }
@@ -117,7 +102,7 @@ public class InteractEvents implements Listener, CommandExecutor {
             player.sendMessage(mainClass.getConfig().getStringReplaced("jogador_mais_proximo", map));
         }
         setCompassTrack(player, nearestPlayer.getLocation());
-        sendSound(player);
+        supplier.sendSound(player);
         delay.add(player);
     }
 
@@ -151,7 +136,7 @@ public class InteractEvents implements Listener, CommandExecutor {
                 }
             }
             try {
-                if (isVanished((Player) p)) {
+                if (Utility.isVanished((Player) p)) {
                     return;
                 }
             }catch (Exception ignored){}
@@ -161,7 +146,7 @@ public class InteractEvents implements Listener, CommandExecutor {
                     return;
                 }
             } catch (Exception e) {
-                mainClass.info(new StringBuilder("&cAlgo deu errado ao tentar acessar a API do plugin SpectatePlus! causa:&e  ").append(e.getMessage()).append("\n&aSolução, tente atualizar para a versão instável do plugin."));
+                ServerHelper.info(new StringBuilder("&cAlgo deu errado ao tentar acessar a API do plugin SpectatePlus! causa:&e  ").append(e.getMessage()).append("\n&aSolução, tente atualizar para a versão instável do plugin."));
             }
 
             if (p.getWorld() != ofPlayer.getWorld()) {
@@ -176,31 +161,6 @@ public class InteractEvents implements Listener, CommandExecutor {
 
         });
         return result[0];
-    }
-
-    private void sendSound(Player player) {
-        if (!mainClass.getConfig().getBoolean("som_ao_clicar")) {
-            return;
-        }
-
-        Sound sound;
-
-        try {
-
-            sound = Sound.valueOf(mainClass.getConfig().getString("som"));
-
-        } catch (Exception e) {
-            sound = Sound.ORB_PICKUP;
-        }
-
-        player.playSound(player.getLocation(), sound, 1f, 2f);
-    }
-
-    private boolean isVanished(Player p) {
-        return StaffPlus.get()
-                .userManager.get(p.getUniqueId())
-                .getVanishType()
-                .equals(VanishHandler.VanishType.NONE);
     }
 
     @Override
@@ -244,4 +204,5 @@ public class InteractEvents implements Listener, CommandExecutor {
         sender.sendMessage("Non have another options.");
         return true;
     }
+
 }
